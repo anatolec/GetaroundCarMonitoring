@@ -13,26 +13,25 @@ def start_monitoring(getaround_user,
                      twilio_to,
                      car_id,
                      limit=20,
-                     pause=60):
+                     pause=60,
+                     headless=True):
 
     i = 0
 
-    driver = init_webdriver_with_getaround(getaround_user, getaround_password)
+    driver = init_webdriver_with_getaround(getaround_user, getaround_password, headless)
 
     while True:
+        lat, lon = get_location_getaround(driver, car_id)
 
-        if i == 0:
-            lat1, lon1 = get_location_getaround(driver, car_id)
-            sleep(pause)
-            lat2, lon2 = get_location_getaround(driver, car_id)
-
+        if i % 2:
+            lat1, lon1 = lat, lon
         else:
-            lat, lon = get_location_getaround(driver, car_id)
+            lat2, lon2 = lat, lon
 
-            if i % 2:
-                lat1, lon1 = lat, lon
-            else:
-                lat2, lon2 = lat, lon
+        i += 1
+
+        if i < 2:
+            continue
 
         dist_meters = get_distance(lat1, lon1, lat2, lon2)
 
@@ -46,4 +45,3 @@ def start_monitoring(getaround_user,
                        f"Car has moved by {dist_meters} meters !")
 
         sleep(pause)
-        i += 1

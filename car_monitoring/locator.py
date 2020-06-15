@@ -5,7 +5,7 @@ def get_location_getaround(driver, car_id):
 
     driver.get(f"https://fr.getaround.com/dashboard/cars/{car_id}/open_management")
 
-    element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//a[@target='_blank']")))
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//a[@target='_blank']")))
 
     google_maps_url = element.get_attribute('href')
 
@@ -38,7 +38,8 @@ def get_distance(lat1, lon1, lat2, lon2):
 
     return distance
 
-def init_webdriver_with_getaround(user, password):
+
+def init_webdriver_with_getaround(user, password, headless=True):
     from selenium import webdriver
     from selenium.webdriver.chrome.options import Options
 
@@ -46,7 +47,9 @@ def init_webdriver_with_getaround(user, password):
 
     chrome_options = Options()
     chrome_options.add_argument("--window-size=1920,1280")
-    chrome_options.add_argument('headless')
+
+    if headless:
+        chrome_options.add_argument('headless')
 
     chromedriver_autoinstaller.install()
 
