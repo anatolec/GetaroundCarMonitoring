@@ -1,32 +1,38 @@
+import logging
+import requests
+from bs4 import BeautifulSoup
+import json
+
+logger = logging.getLogger(__name__)
+
 def get_location_getaround(user, password, car_id):
-    import requests
-    from bs4 import BeautifulSoup
-    import json
+    try:
+        session = requests.session()
 
-    session = requests.session()
+        response = session.get('https://fr.getaround.com/login')
 
-    response = session.get('https://fr.getaround.com/login')
+        soup = BeautifulSoup(response.text, features="html.parser")
 
-    soup = BeautifulSoup(response.text, features="html.parser")
+        token = soup.find("input", {"name": "authenticity_token"}).attrs['value']
 
-    token = soup.find("input", {"name": "authenticity_token"}).attrs['value']
+        data = {"authenticity_token": token,
+                #"commit": "Se connecter",
+                "user[email]": user,
+                "user[password]": password,
+                #"user[remember_me]": 1
+                }
 
-    data = {"authenticity_token": token,
-            "commit": "Se connecter",
-            "user[email]": user,
-            "user[password]": password,
-            "user[remember_me]": 1}
+        session.post('https://fr.getaround.com/login', data=data)
 
-    session.post('https://fr.getaround.com/login', data=data)
+        soup = BeautifulSoup(
+            json.loads(session.get(f'https://fr.getaround.com/dashboard/cars/{car_id}/open_management/status').text)['html'],
+            features="html.parser")
 
-    soup = BeautifulSoup(
-        json.loads(session.get(f'https://fr.getaround.com/dashboard/cars/{car_id}/open_management/status').text)['html'],
-        features="html.parser")
+        google_maps_url = soup.find("a", {"target": "_blank"}).attrs['href']
 
-    google_maps_url = soup.find("a", {"target": "_blank"}).attrs['href']
-
-    lat, long = extract_coordinage(google_maps_url)
-
+        lat, long = extract_coordinage(google_maps_url)
+    except TypeError:
+        return 0, 0
     return lat, long
 
 
