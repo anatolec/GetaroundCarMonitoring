@@ -1,0 +1,12 @@
+certifi==2020.4.5.1
+chardet==3.0.4
+chromedriver-autoinstaller==0.2.2
+idna==2.9
+PyJWT==1.7.1
+pytz==2020.1
+requests==2.23.0
+selenium==3.141.0
+six==1.15.0
+twilio==6.42.0
+urllib3==1.25.9
+wincertstore==0.2
