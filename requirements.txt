@@ -1,3 +1,5 @@
+beautifulsoup4==4.9.1
+bs4==0.0.1
 certifi==2020.4.5.1
 chardet==3.0.4
 chromedriver-autoinstaller==0.2.2
@@ -7,6 +9,7 @@ pytz==2020.1
 requests==2.23.0
 selenium==3.141.0
 six==1.15.0
+soupsieve==2.0.1
 twilio==6.42.0
 urllib3==1.25.9
 wincertstore==0.2

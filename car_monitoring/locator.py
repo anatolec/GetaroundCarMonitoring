@@ -1,4 +1,36 @@
-def get_location_getaround(driver, car_id):
+def get_location_getaround(user, password, car_id):
+    import requests
+    from bs4 import BeautifulSoup
+    import json
+
+    session = requests.session()
+
+    response = session.get('https://fr.getaround.com/login')
+
+    soup = BeautifulSoup(response.text, features="html.parser")
+
+    token = soup.find("input", {"name": "authenticity_token"}).attrs['value']
+
+    data = {"authenticity_token": token,
+            "commit": "Se connecter",
+            "user[email]": user,
+            "user[password]": password,
+            "user[remember_me]": 1}
+
+    session.post('https://fr.getaround.com/login', data=data)
+
+    soup = BeautifulSoup(
+        json.loads(session.get(f'https://fr.getaround.com/dashboard/cars/{car_id}/open_management/status').text)['html'],
+        features="html.parser")
+
+    google_maps_url = soup.find("a", {"target": "_blank"}).attrs['href']
+
+    lat, long = extract_coordinage(google_maps_url)
+
+    return lat, long
+
+
+def get_location_getaround_selenium(driver, car_id):
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
@@ -9,13 +41,17 @@ def get_location_getaround(driver, car_id):
 
     google_maps_url = element.get_attribute('href')
 
+    lat, long = extract_coordinage(google_maps_url)
+
+    return lat, long
+
+def extract_coordinage(google_maps_url):
     lat, long = google_maps_url.split('=')[2].split('%2C')
 
     lat = float(lat)
     long = float(long)
 
     return lat, long
-
 
 def get_distance(lat1, lon1, lat2, lon2):
     from math import sin, cos, sqrt, atan2, radians
@@ -39,7 +75,7 @@ def get_distance(lat1, lon1, lat2, lon2):
     return distance
 
 
-def init_webdriver_with_getaround(user, password, headless=True):
+def init_selenium_with_getaround(user, password, headless=True):
     from selenium import webdriver
     from selenium.webdriver.chrome.options import Options
 
