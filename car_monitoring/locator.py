@@ -2,6 +2,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 import json
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +17,10 @@ def get_location_getaround(user, password, car_id):
         token = soup.find("input", {"name": "authenticity_token"}).attrs['value']
 
         data = {"authenticity_token": token,
-                #"commit": "Se connecter",
+                "commit": "Se connecter",
                 "user[email]": user,
                 "user[password]": password,
-                #"user[remember_me]": 1
+                "user[remember_me]": 1
                 }
 
         session.post('https://fr.getaround.com/login', data=data)
@@ -31,7 +32,8 @@ def get_location_getaround(user, password, car_id):
         google_maps_url = soup.find("a", {"target": "_blank"}).attrs['href']
 
         lat, long = extract_coordinage(google_maps_url)
-    except TypeError:
+    except Exception as e:
+        logger.error(traceback.print_exc())
         return 0, 0
     return lat, long
 

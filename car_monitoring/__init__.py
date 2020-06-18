@@ -30,7 +30,7 @@ def monitor_car(getaround_user,
 
         if (lat, lon) == (0, 0):
             logger.info("Location failed")
-            sleep(pause)
+            sleep(60)
             continue
 
         logger.info(f"Car located at {lat}, {lon}")
